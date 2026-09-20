@@ -33,7 +33,7 @@ function explain(s){if(DEEP_OPTIONS[s.id])return `<div class="explain"><h4>逐�
 function findStep(id){return steps.flat().find(s=>s.id===id)}
 function check(id){const s=findStep(id),raw=state.answers[id]||'';if(!raw.trim()||(s.type==='gel'&&raw==='0000')){notify('先填写或点选你的答案');return}let a=raw.trim();if(s.id==='q4f')a=a.replace(/[：∶／/]/g,':').replace(/\s/g,'');let good=a===s.answer;const already=!!state.passed[id];state.submitted[id]=true;if(good&&!already){state.passed[id]=true;notify('★ +20 分 · 又掌握了一个知识点')}save();document.querySelectorAll('#step-'+id+' audio').forEach(a=>a.pause());$('#step-'+id).innerHTML=stepBody(s,steps[state.q].indexOf(s));$('#step-'+id+' .result').innerHTML=`<div class="feedback ${good?'good':'bad'}">${good?'✓ 答对了！'+(already?'本步骤已得分，不重复计分。':' +20 分，继续保持！'):'答案还不正确，解析已解锁。看看推理过程，再试一次；答错不扣分。'}</div>`;renderKnowledge();renderSummary()}
 $('#nav').addEventListener('click',e=>{const b=e.target.closest('[data-q]');if(b){state.q=+b.dataset.q;render();window.scrollTo({top:0,behavior:'smooth'})}});
-$('#steps').addEventListener('click',e=>{let b=e.target.closest('button');if(!b)return;if(b.dataset.answer){state.answers[b.dataset.answer]=b.dataset.value;$('#step-'+b.dataset.answer).querySelectorAll('[data-answer]').forEach(n=>{n.classList.toggle('selected',n===b);n.setAttribute('aria-pressed',n===b)});$('#step-'+b.dataset.answer+' .result').innerHTML='';save()}if(b.dataset.band){let a=(state.answers[b.dataset.band]||'0000').split('');a[+b.dataset.index]=a[+b.dataset.index]==='1'?'0':'1';state.answers[b.dataset.band]=a.join('');b.classList.toggle('on',a[+b.dataset.index]==='1');b.textContent=a[+b.dataset.index]==='1'?'━━':'＋';b.setAttribute('aria-pressed',a[+b.dataset.index]==='1');save()}if(b.dataset.check)check(b.dataset.check);if(b.dataset.explain){let id=b.dataset.explain;if(!state.submitted[id])return;state.open[id]=!state.open[id];$('#step-'+id+' .explanation').innerHTML=state.open[id]?explain(findStep(id)):'';b.textContent=state.open[id]?'收起解析':'查看分步解析';b.setAttribute('aria-expanded',!!state.open[id]);save()}});
+$('#steps').addEventListener('click',e=>{let b=e.target.closest('button');if(!b)return;if(b.dataset.answer){state.answers[b.dataset.answer]=b.dataset.value;$('#step-'+b.dataset.answer).querySelectorAll('[data-answer]').forEach(n=>{n.classList.toggle('selected',n===b);n.setAttribute('aria-pressed',n===b)});$('#step-'+b.dataset.answer+' .result').innerHTML='';save()}if(b.dataset.band){let a=(state.answers[b.dataset.band]||'0000').split('');a[+b.dataset.index]=a[+b.dataset.index]==='1'?'0':'1';state.answers[b.dataset.band]=a.join('');b.classList.toggle('on',a[+b.dataset.index]==='1');b.textContent=a[+b.dataset.index]==='1'?'━━':'＋';b.setAttribute('aria-pressed',a[+b.dataset.index]==='1');save()}if(b.dataset.check)check(b.dataset.check);if(b.dataset.explain){let id=b.dataset.explain;if(!state.submitted[id])return;state.open[id]=!state.open[id];$('#step-'+id+' .explanation').innerHTML=state.open[id]?explain(findStep(id)):'';b.textContent=state.open[id]?'收起解析':'查看分步解析';b.setAttribute('aria-expanded',!!state.open[id]);if(state.open[id])openComparison(id,explain(findStep(id)));save()}});
 $('#steps').addEventListener('input',e=>{if(e.target.dataset.input){state.answers[e.target.dataset.input]=e.target.value;save()}});$('#steps').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.dataset.input)check(e.target.dataset.input)});
 document.addEventListener('toggle',e=>{if(e.target.tagName==='DETAILS'&&!e.target.open)e.target.querySelectorAll('audio').forEach(a=>a.pause())},true);
 document.addEventListener('play',e=>{if(e.target.tagName==='AUDIO')document.querySelectorAll('audio').forEach(a=>{if(a!==e.target)a.pause()})},true);document.addEventListener('error',e=>{if(e.target.tagName==='AUDIO')notify('音频暂时无法播放，请先阅读下方讲解文字。')},true);
@@ -55,3 +55,26 @@ $('#closeAward').onclick=()=>$('#awardDialog').close();$('#awardClass').addEvent
 $('#awardForm').addEventListener('submit',async e=>{e.preventDefault();awardSaveProfile();const d=awardData();if(!studentProfile.name||!studentProfile.className){notify('请填写班级和姓名');return}if(!d.title){notify('先答对一个步骤，再来领取称号');return}try{if(document.fonts?.ready)await document.fonts.ready;const now=new Date();const snapshot={...d,...studentProfile,date:`${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日`};drawAward(snapshot);awardSnapshot=snapshot;$('#awardCaption').textContent=`${snapshot.className} · ${snapshot.name} · ${snapshot.title} · ${snapshot.score}分`;$('#awardPreview').hidden=false}catch(err){notify('图片生成失败，请换用支持绘图的浏览器重试。')}});
 $('#downloadAward').onclick=()=>{if(!awardSnapshot)return;const snapshot=awardSnapshot;try{$('#awardCanvas').toBlob(blob=>{if(!blob){notify('图片生成失败，请重试');return}const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`${snapshot.className}_${snapshot.name}_${snapshot.title}.png`.replace(/[\\/:*?"<>|]/g,'_');document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000)},'image/png')}catch{notify('浏览器未能下载图片，可尝试打印并保存为PDF。')}};
 $('#printAward').onclick=async()=>{if(!awardSnapshot)return;const img=$('#awardPrintImage');img.src=$('#awardCanvas').toDataURL('image/png');try{await img.decode();window.print()}catch{notify('打印预览尚未准备好，请重试')}};
+
+// Keep the source question and its explanation visible in independently scrolling panes.
+function openComparison(stepId,html){
+ const step=steps[state.q].find(s=>s.id===stepId);
+ if(stepId?(!step||!state.submitted[stepId]):!steps[state.q].every(s=>state.submitted[s.id]))return;
+ document.querySelectorAll('audio').forEach(a=>a.pause());
+ const contents=QUESTIONS[state.q].content;const end=contents.findIndex(c=>c.text.startsWith('【答案】'));
+ $('#comparisonQuestion').innerHTML=contents.slice(0,end<0?contents.length:end).map(c=>(c.text?'<p>'+esc(bioText(c.text))+'</p>':'')+c.images.map(img=>figure(img,'第'+(state.q+1)+'题原题图')).join('')).join('');
+ $('#comparisonExplanation').innerHTML=(step?'<p class="comparison-step">'+esc(step.name)+'</p>':'')+html;
+ $('#comparisonTitle').textContent='第'+(state.q+1)+'题 · 题目对照';
+ $('#comparisonQuestion').scrollTop=0;$('#comparisonExplanation').scrollTop=0;
+ if(!$('#comparisonDialog').open)$('#comparisonDialog').showModal();
+}
+$('#closeComparison').onclick=()=>$('#comparisonDialog').close();
+$('#comparisonDialog').addEventListener('close',()=>{$('#comparisonDialog').querySelectorAll('audio').forEach(a=>a.pause());$('#comparisonExplanation').innerHTML=''});
+document.addEventListener('toggle',e=>{
+ const card=e.target;
+ if(card.tagName!=='DETAILS'||!card.open||card.closest('#comparisonDialog'))return;
+ if(!card.matches('.option-card,.linked-concept,.knowledge-card'))return;
+ const step=card.closest('.step');
+ if(step)openComparison(step.id.replace('step-',''),card.outerHTML);
+ else if(card.closest('#knowledge'))openComparison(null,card.outerHTML);
+},true);
