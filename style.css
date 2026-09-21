@@ -24,3 +24,17 @@
 
 /* Detailed derivations are readable as individual numbered steps. */
 .derivation-steps{list-style:none;counter-reset:derivation;padding:0;margin:14px 0;display:grid;gap:12px}.derivation-steps li{counter-increment:derivation;position:relative;padding:16px 18px 16px 54px;background:#f5f8ff;border:1px solid #dde5f4;border-radius:12px;line-height:1.85;white-space:pre-line;overflow-wrap:anywhere}.derivation-steps li::before{content:counter(derivation);position:absolute;left:15px;top:17px;width:25px;height:25px;display:grid;place-items:center;border-radius:50%;background:#335d9e;color:white;font-size:14px;font-weight:650;line-height:1}@media(max-width:600px){.derivation-steps li{padding:13px 12px 13px 45px}.derivation-steps li::before{left:11px;top:15px;width:23px;height:23px}}
+
+.narration-transcript{margin-top:14px;border-top:1px solid #dbe3ef;padding-top:12px}.narration-transcript summary{cursor:pointer;color:#375d96;font-size:.92em}.narration-transcript p{line-height:1.9;color:#27374f;font-size:.95em;white-space:pre-wrap}
+
+/* Bounded teaching motion: complete static frames, resumable staged playback. */
+.visual-lesson .visual-count{font-weight:650;color:#3159cf;background:#e8efff;border-radius:20px;padding:5px 10px}
+.visual-timeline{height:3px;margin-top:14px;background:#dce5f5;border-radius:3px;overflow:hidden}
+.visual-timeline i{display:block;width:100%;height:100%;background:#5477c5;transform-origin:left}
+.visual-lesson[data-motion="running"] [data-reveal],.visual-lesson[data-motion="paused"] [data-reveal]{animation:teaching-reveal .5s ease-out var(--reveal-delay,0ms) both}
+.visual-lesson[data-motion="running"] .visual-timeline i,.visual-lesson[data-motion="paused"] .visual-timeline i{animation:teaching-timeline 8s linear both}
+.visual-lesson[data-motion="paused"] [data-reveal],.visual-lesson[data-motion="paused"] .visual-timeline i,.visual-lesson[data-motion="paused"] .division-svg .move-left,.visual-lesson[data-motion="paused"] .division-svg .move-right,.visual-lesson[data-motion="paused"] .hypothesis-chain,.visual-lesson[data-motion="paused"] .visual-caption{animation-play-state:paused}
+.visual-lesson[data-motion="static"] [data-reveal],.visual-lesson[data-motion="static"] .visual-timeline i,.visual-lesson[data-motion="static"] .division-svg .move-left,.visual-lesson[data-motion="static"] .division-svg .move-right,.visual-lesson[data-motion="static"] .hypothesis-chain,.visual-lesson[data-motion="static"] .visual-caption{animation:none;opacity:1;transform:none}
+@keyframes teaching-reveal{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+@keyframes teaching-timeline{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@media(prefers-reduced-motion:reduce){.visual-lesson [data-reveal],.visual-lesson .visual-timeline i,.visual-lesson .division-svg .move-left,.visual-lesson .division-svg .move-right,.visual-lesson .hypothesis-chain,.visual-lesson .visual-caption{animation:none!important;opacity:1!important;transform:none!important}.visual-lesson .visual-timeline{display:none}}
