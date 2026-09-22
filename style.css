@@ -38,3 +38,18 @@
 @keyframes teaching-reveal{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
 @keyframes teaching-timeline{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 @media(prefers-reduced-motion:reduce){.visual-lesson [data-reveal],.visual-lesson .visual-timeline i,.visual-lesson .division-svg .move-left,.visual-lesson .division-svg .move-right,.visual-lesson .hypothesis-chain,.visual-lesson .visual-caption{animation:none!important;opacity:1!important;transform:none!important}.visual-lesson .visual-timeline{display:none}}
+
+/* Compact question selector: native keyboard-accessible disclosure. */
+.question-nav{border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden}
+.question-nav>summary{display:flex;align-items:center;gap:8px;list-style:none;padding:13px 12px;cursor:pointer;font-size:13px;min-height:48px}
+.question-nav>summary::-webkit-details-marker{display:none}
+.question-nav>summary:focus-visible{outline:3px solid #db9c26;outline-offset:-3px}
+.question-nav>summary strong{font-size:15px;white-space:nowrap}
+#navCurrent{color:var(--muted);font-variant-numeric:tabular-nums}
+.nav-expand,.nav-collapse{margin-left:auto;color:var(--green);white-space:nowrap}
+.question-nav .nav-collapse,.question-nav[open] .nav-expand{display:none}
+.question-nav[open] .nav-collapse{display:inline}
+.question-nav[open]>summary{border-bottom:1px solid var(--line)}
+.question-nav #nav{padding:8px;gap:5px}
+.question-nav .nav-note{margin:0;padding:5px 10px 10px;font-size:11px}
+@media(max-width:760px){.question-nav>summary{padding:12px 15px}.question-nav #nav{max-height:190px}}
